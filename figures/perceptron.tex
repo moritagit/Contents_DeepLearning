@@ -1,0 +1,22 @@
+\documentclass[class=jsarticle, crop=false, dvipdfmx, fleqn]{standalone}
+\input{../preamble/preamble}
+\begin{document}
+\begin{tikzpicture}[x=1.5cm, y=1.5cm, >=stealth]
+
+% input
+\foreach \m/\l [count=\y] in {1, 2}
+	\node [every neuron/.try, neuron \m/.try] (input-\m) at (0, 2.5-\y) {$x_\l$};
+\node [every neuron/.try, neuron 0/.try] (input-0) at (0, 2.5-0) {1};
+
+% output
+\node [every neuron/.try, neuron 1/.try ] (output) at (2, 1.5) {$y$};
+
+\foreach \i in {1,...,2}
+    \draw [->] (input-\i) to node[above]{$w_\i$} (output);
+\draw [->] (input-0) to node[above]{$b$} (output);
+
+\foreach \l [count=\x from 0] in {Input, Ouput}
+  \node [align=center, above] at (\x*2, 3) {\l};
+
+\end{tikzpicture}
+\end{document}

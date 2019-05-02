@@ -1,0 +1,198 @@
+%% preamble for Numerical-structure-analysis report
+
+%% title
+\date{\today}
+\author{Morita}
+
+
+%% packages and libraries
+\usepackage{amsmath, amssymb, amsfonts, mathtools, cases, mathrsfs}	%math
+\usepackage{physics}
+\usepackage{fancyhdr, lastpage}										%header and footer
+\usepackage{titlesec}													%title design
+\usepackage{hyperref}													%link
+\usepackage{url}														%URL
+\usepackage{pxjahyper}												%arrow Japanese for hyperref
+\usepackage[table]{xcolor}											%tables and color
+\usepackage{longtable, float, multirow, array, listliketab, enumitem, tabularx}	%tables
+\usepackage{flafter}
+\usepackage{comment}												%comment out over 2 lines
+\usepackage{graphicx}													%figure
+\usepackage{subcaption, wrapfig}									%configuration
+\usepackage{tikz}														%TikZ
+\usetikzlibrary{calc, patterns, decorations, decorations.pathmorphing, angles, backgrounds, shadows, positioning, shapes.geometric, arrows}
+\usepackage{pdfpages}												%include PDF
+\usepackage{import, grffile}											%management files
+\usepackage{standalone}
+\usepackage[T1]{fontenc}											%fonts
+\usepackage{textcomp}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{mathptmx}
+\usepackage[scaled]{helvet}
+\renewcommand{\ttdefault}{pcr}
+\usepackage[deluxe]{otf}
+\usepackage[noalphabet]{pxchfon}
+\usepackage{bm}
+\usepackage{lscape}
+\usepackage{siunitx}													%units
+\usepackage{bigstrut}
+
+
+%% set up for hyperref
+\hypersetup{
+	bookmarksnumbered = true,
+	hidelinks,
+	colorlinks = true,
+	linkcolor = black,
+	urlcolor = cyan,
+	citecolor = black,
+	filecolor = magenta,
+	setpagesize = false,
+	pdftitle = {},
+	pdfauthor = {Morita},
+	pdfkeywords = {},
+	}
+
+
+%% set up for siunitx
+\sisetup{%
+	%detect-family = true,						%bold
+	detect-inline-family = math,
+	detect-weight = true,
+	detect-inline-weight = math,
+	%input-product = *,							%multiply by *
+	quotient-mode = fraction,						%fraction by /
+	fraction-function = \frac,
+	inter-unit-product = \ensuremath{\hspace{-1.5pt}\cdot\hspace{-1.5pt}},	%devide different units by \cdot
+	per-mode = symbol,%							%devide different unit by /
+	product-units = single,%						%
+	}
+
+
+%% fonts
+\setminchofont{ipam.ttf}
+\setgothicfont{ipag.ttf}
+\fontsize{14Q}{30H}
+
+
+%% layout
+%space between letters
+\kanjiskip 0zw plus 1zw minus 0zw
+\xkanjiskip 0.25zw plus 1pt minus 1pt
+%line skip
+\setlength{\lineskiplimit}{2pt}
+\setlength{\lineskip}{2pt}
+%indent
+\setlength{\parindent}{1zw}
+\setlength{\mathindent}{5zw}
+
+
+%put citation mark on index zone
+\bibliographystyle{junsrt}
+
+
+%hyphen for math mode
+\DeclareMathSymbol{\mhyphen}{\mathalpha}{operators}{`-}
+
+
+%circle text
+\newcommand{\ctext}[1]{\raise0.2ex\hbox{\textcircled{\scriptsize{#1}}}}
+
+
+%unit of formulas 〔roman〕
+\newcommand{\unitis}[1]{%
+	\text{〔\si{#1}〕}
+	}
+
+
+% neuron
+\definecolor{darkcyan}{RGB}{0, 139, 139}
+\definecolor{darkorange}{RGB}{237, 125, 49}
+
+\tikzset{%
+  every neuron/.style={
+    circle,
+    draw,
+    minimum size=1cm
+  },
+  neuron missing/.style={
+    draw=none,
+    scale=4,
+    text height=0.333cm,
+    execute at begin node=\color{black}$\vdots$
+  },
+}
+
+\tikzstyle{arrow} = [thick, ->, >=stealth]
+
+\tikzstyle{scalar} = [
+	rectangle,
+	rounded corners,
+	minimum width=1.5cm,
+	minimum height=1cm,
+	text=white,
+	text centered,
+	text width=1.5cm,
+	draw=black,
+	fill=darkcyan,
+	]
+
+\tikzstyle{vector} = [
+	rectangle,
+	rounded corners,
+	minimum width=2cm,
+	minimum height=2cm,
+	text=white,
+	text centered,
+	text width=2cm,
+	draw=black,
+	fill=darkcyan,
+	]
+
+\tikzstyle{image} = [
+	rectangle,
+	minimum width=3cm,
+	minimum height=3cm,
+	text=white,
+	text centered,
+	draw=black,
+	fill=darkcyan,
+	]
+
+\tikzstyle{fc} = [
+	rectangle,
+	minimum width=3cm,
+	minimum height=3cm,
+	text=white,
+	text centered,
+	draw=black,
+	fill=darkorange,
+	]
+
+\tikzstyle{encoder} = [
+	trapezium,
+	trapezium left angle=110,
+	trapezium right angle=110,
+	rotate=90,
+	minimum width=2cm,
+	minimum height=1cm,
+	text=white,
+	text centered,
+	draw=black,
+	fill=darkorange,
+	]
+
+\tikzstyle{decoder} = [
+	trapezium,
+	trapezium left angle=70,
+	trapezium right angle=70,
+	rotate=90,
+	minimum width=2cm,
+	minimum height=1cm,
+	text=white,
+	text centered,
+	draw=black,
+	fill=darkorange,
+	]
+

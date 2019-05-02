@@ -1,0 +1,904 @@
+\documentclass[class=jsarticle, crop=false, dvipdfmx, fleqn]{standalone}
+\input{preamble}
+\title{Deep Learning入門}
+\begin{document}
+
+\maketitle
+\tableofcontents
+
+
+\section{はじめに}
+
+パーセプトロンから始め，
+ニューラルネットワークとその学習方法からCNNまでの基本的な説明を扱う。
+正則化や重みの初期値の設定についても扱う。
+
+
+
+\section{Perceptron}
+\label{sec:perceptron}
+
+パーセプトロンとは，
+入力として複数の数値を受け取り，
+1つの数値を出力するものである。
+入力された数値は，
+それぞれ対応する重みがかけられ，
+その総和が取られる。
+それにバイアスと呼ばれる数値を足し，
+それが0よりも大きければ1を，
+0以下であれば0を出力する。
+パーセプトロンのパラメータは重みとバイアスであり，
+これらを設定することで，
+例えばANDやORなどの論理回路を表現できる。
+
+以上のことを数式で表すことを考える。
+入力される数値の個数を$n$，
+入力を$\bm{x} \qty(\in \bm{R}^n)$，
+重みを$\bm{W} \qty(\in \bm{R}^n)$，
+バイアスを$b\qty(\in \bm{R})$，
+出力を$y\qty(\in \bm{R})$と表し，
+関数$f$をステップ関数とすると，
+次のようになる。
+\begin{align}
+& y = f \qty(\bm{W}^\mathrm{T} \bm{x} + b) \\
+& f(u) =
+	\begin{cases}
+		1 & (u > 0) \\
+		0 & (u \leq 0)
+	\end{cases}
+\end{align}
+なお，ステップ関数の形は図\ref{fig:step_function}に示した。
+
+例として，入力が2つの場合のパーセプトロンを図\ref{fig:perceptron}に示す。
+この例では，
+\begin{align}
+\bm{x} & = \begin{bmatrix} x_1 \\ x_2 \end{bmatrix}, \quad
+\bm{W} = \begin{bmatrix} w_1 \\ w_2 \end{bmatrix} \\
+y & = f\qty(\bm{W}^\mathrm{T} \bm{x} + b) = f\qty(w_1 x_1 + w_2 x_2 + b) \\
+	 & =
+	 	\begin{cases}
+			1 & \qty(w_1 x_1 + w_2 x_2 + b > 0) \\
+			0 & \qty(w_1 x_1 + w_2 x_2 + b \leq 0) 
+		\end{cases}
+\end{align}
+となる。
+
+パーセプトロンでは線形分離可能な問題しか解くことができず，
+例えばXORは表現できない。
+しかし，これを多層にすることで線形分離できない問題でも解くことが可能になる。
+理論上，
+任意の数の中間層ノードを持った2層のパーセプトロンを用いれば，%<------非線形活性化関数
+任意の関数を表現可能である。
+
+\begin{figure}
+	\centering
+	\input{figures/perceptron}
+	\caption{パーセプトロンの図}
+	\label{fig:perceptron}
+\end{figure}
+
+% <--------------------------------------------------- AND OR XORの説明と図
+
+
+\section{Neural Network}
+\label{sec:neural_network}
+
+ニューラルネットワークとは，
+人間の脳内にある神経細胞（ニューロン）が繋がってできた神経回路網を，
+数式的なモデルで表現したものである。
+神経回路網においては，
+情報伝達は電気信号によって行われ，
+シナプスの結合強度によって伝達されやすさが異なる。
+この神経回路網は，
+信号をノード，シナプスの結合強度をエッジとしてモデル化することができる。
+
+パーセプトロンにおいて，
+入力の重みづけ和とバイアスの和を出力に変換する関数はステップ関数であった。
+このような関数を活性化関数と呼ぶ。
+この活性化関数を他のものに変えたものがニューラルネットワークとなる。
+後述するように，
+活性化関数を非線形かつ微分した値が0でないものにすることで，
+誤差逆伝搬法によって重みとバイアスを学習することができるようになる。
+この活性化関数として，例えばlogistic関数が用いられる。
+logistic関数はよく$\sigma$で表され，次で定義される。
+\begin{equation}
+\sigma (x) = \frac{1}{1 + e^{-x}}
+\end{equation}
+その他の活性化関数については\ref{sec:activate_function}節にまとめる。
+
+図\ref{fig:neural_network}にニューラルネットワークの図を示す。
+図において，一番左の列が入力層，真ん中の層が隠れ層，一番右の層が出力層となる。
+この図の例はベクトルと行列を用いて次のように記述できる。
+\begin{align}
+& \bm{h} = f\qty({\bm{W}^{(1)}}^{\mathrm{T}} \bm{x} + \bm{b}_1) \\
+& \bm{y} = f\qty({\bm{W}^{(2)}}^{\mathrm{T}} \bm{h} + \bm{b}_2)
+\end{align}
+
+この例では隠れ層は1層だが，
+これを複数にすることもできる。
+隠れ層が複数ある，
+多層のニューラルネットワーク（Deep Neural Network: DNN）を用いた
+機械学習の手法を深層学習（Deep Learning）という。
+また以下で，パラメータという語は学習されるもの，主に重みとバイアスを指し，
+ハイパーパラメータは人手で設定されるもの，例えば学習率などを指す。
+
+\begin{figure}
+	\centering
+	\input{figures/neural_network}
+	\caption{ニューラルネットワークの図}
+	\label{fig:neural_network}
+\end{figure}
+
+
+
+\section{活性化関数}
+\label{sec:activate_function}
+
+\ref{sec:neural_network}節で述べたように，
+入力の重みづけ和とバイアスの和を出力に変換する関数のことを活性化関数と呼ぶ。
+この活性化関数は非線形である必要がある。
+線形な活性化関数を用いて隠れ層のあるネットワークを構築しても，
+最終的に得られる出力は入力の線形結合にスカラー（バイアス）を足したものとなる。
+これは結局隠れ層のないネットワークによっても得られるようなものであるから，
+多層にする利点が失われる，
+つまり線形分離可能な問題しか解けなくなる。
+よって，活性化関数は非線形でなくてはならない。
+
+活性化関数としてよく用いられるものに，logistic，tanh，ReLUが挙げられる。
+また，ReLUには負の値が入力されたときに活性化されない問題（dying ReLU）があるため，
+入力が負でも勾配が0にならないように考案されたReLUの派生形もしばしば用いられる。
+
+以下に活性化関数の定義式とそれをプロットした図を列挙する。
+ReLUの派生形は代表的なもののみを挙げた。
+Parametric ReLUの図はLeaky ReLUの図と同じような形になるため省略した。
+また，softmaxは2次元にプロットできないため，
+こちらも省略した。
+
+step
+\begin{equation}
+f(x) = 
+	\begin{cases}
+		1 & (x > 0) \\
+		0 & (x \leq 0)
+	\end{cases}
+\end{equation}
+
+logistic
+\begin{equation}
+f(x) = \sigma (x) = \frac{1}{1 + e^{-x}}
+\end{equation}
+
+hyperbolic tangent
+\begin{equation}
+f(x) = \tanh (x) = \frac{e^x - e^{-x}}{e^x + e^{-x}}
+\end{equation}
+
+softplus
+\begin{equation}
+f(x) = \log (1 + e^x)
+\end{equation}
+
+ReLU (Rectified Linear Unit)
+\begin{equation}
+f(x) = \max(0, x) = 
+	\begin{cases}
+		x & (x > 0) \\
+		0 & (x \leq 0)
+	\end{cases}
+\end{equation}
+
+Leaky ReLU（$\alpha$はハイパーパラメータ）
+\begin{equation}
+f(x) = 
+	\begin{cases}
+		x & (x > 0) \\
+		\alpha x & (x \leq 0)
+	\end{cases}
+\end{equation}
+
+Parametric ReLU（$a$は学習されるパラメータの1つになる）
+\begin{equation}
+f(x) = 
+	\begin{cases}
+		x & (x > 0) \\
+		a x & (x \leq 0)
+	\end{cases}
+\end{equation}
+
+Exponential Linear Units（$\alpha$はハイパーパラメータ）
+\begin{equation}
+f(x) = 
+	\begin{cases}
+		x & (x > 0) \\
+		\alpha (e^x - 1) & (x \leq 0)
+	\end{cases}
+\end{equation}
+
+恒等関数（回帰問題の出力層でよく用いられる）
+\begin{equation}
+f(x) = x
+\end{equation}
+
+softmax（多クラス分類問題の出力層でよく用いられる）
+\begin{equation}
+f(x_i) = \frac{e^{x_i}}{\sum_{j=1}^{n} e^{x_j}}
+\end{equation}
+
+\begin{figure}
+	\centering
+	\begin{minipage}{0.45\linewidth}
+		\centering
+		\input{figures/step_function}
+		\subcaption{ステップ関数}
+		\label{fig:step_function}
+	\end{minipage}
+	\begin{minipage}{0.45\linewidth}
+		\centering
+		\input{figures/sigmoid_function}
+		\subcaption{sigmoid関数}
+		\label{fig:sigmoid_function}
+	\end{minipage}
+	\begin{minipage}{0.45\linewidth}
+		\centering
+		\input{figures/tanh_function}
+		\subcaption{tanh関数}
+		\label{fig:tanh_function}
+	\end{minipage}
+	\begin{minipage}{0.45\linewidth}
+		\centering
+		\input{figures/softplus_function}
+		\subcaption{softplus関数}
+		\label{fig:softplus_function}
+	\end{minipage}
+	\begin{minipage}{0.45\linewidth}
+		\centering
+		\input{figures/relu_function}
+		\subcaption{ReLU関数}
+		\label{fig:relu_function}
+	\end{minipage}
+	\begin{minipage}{0.45\linewidth}
+		\centering
+		\input{figures/leaky_relu_function}
+		\subcaption{Leaky ReLU関数}
+		\label{fig:leaky_relu_function}
+	\end{minipage}
+	\begin{minipage}{0.45\linewidth}
+		\centering
+		\input{figures/elu_function}
+		\subcaption{ELU関数}
+		\label{fig:elu_function}
+	\end{minipage}
+	\begin{minipage}{0.45\linewidth}
+		\centering
+		\input{figures/identity_function}
+		\subcaption{恒等関数}
+		\label{fig:identity_function}
+	\end{minipage}
+	\caption{活性化関数のプロット}
+	\label{fig:plot_of_activate_function}
+\end{figure}
+
+%\clearpage
+
+
+\section{学習とは}
+
+ネットワークを学習させるとは，
+入力$\bm{x}$に対し望ましい出力$\bm{y}$が得られるように
+重みとバイアスを調整するということである。
+この学習には教師あり学習と教師なし学習の2種類がある。
+教師あり学習は人間が用意した答えがある場合の学習のことを指す。
+教師なし学習はそうではないものを指す。
+
+
+
+\section{分類問題・回帰問題}
+
+分類問題は，入力データを予め決められたカテゴリに分けるタスクを指す。
+入力画像に猫が写っているか否か，
+センサからの入力が正常状態か異常状態かといった2値分類，
+入力画像には猫・犬・人・車のいずれかが写っているか，
+またはどれも写っていないかといった多クラス分類がある
+（この例においては5クラス）。
+2値分類も多クラス分類の一部ではあるが，
+2値分類では出力層の活性化関数としてlogistic関数がよく用いられるのに対し，
+多クラス分類ではsoftmax関数が用いられることから分けて説明した。
+
+回帰問題は，入力データから数値を予測するようなタスクを指す。
+株価や気温の予測等が当てはまる。
+出力層の活性化関数としては，
+よく恒等関数が用いられる。
+
+
+\subsection{分類問題の評価指標}
+
+分類問題におけるモデルの評価は，
+単純な正解率以外によっても行うことができる。
+極端な例として，
+例えば負例が正例に比べて非常に多いデータで二値分類を行うときを考える。
+このような問題に対しては，
+入力が何であれFalseを出力するようなモデルでもその正解率が9割を超えるということも考えられる。
+従って，正解率のみではモデルの評価としては不十分であるといえる。
+
+以下では二値分類問題を扱う。
+多クラス分類問題においても同様の評価指標を導入できるが，
+ここでは省略する。
+二値分類問題では，
+真の結果が正負の2パターンあり，
+それに対する予測も正負の2パターンある。
+これを，
+例えば真の結果も予測結果もTrueであったものをTP (True Positive)などとして，
+表\ref{tab:confusion_matrix}のように分類する。
+予測結果と真の値が一致したものにTrue，そうでないものにFalseと，
+予測値が正だったものにPositive，そうでないものにNegativeというラベルをつけている。
+この表を混同行列という。
+以下では，この混同行列を用いていくつかの評価指標を導入する。
+
+正解率（accuracy）は，分類結果のうち，予測された値と真の値が一致したものの割合である。
+\begin{equation}
+\text{Accuracy} = \frac{\mathrm{TP + TN}}{\mathrm{TP + FP + FN + TN}}
+\end{equation}
+
+適合率（precision）は，予測された値が正だったもののうち，
+真の値も正であったものの割合である。
+\begin{equation}
+\text{Precision} = \frac{\mathrm{TP}}{\mathrm{TP + FP}}
+\end{equation}
+
+再現率（recall）は，真の値が正のもののうち，
+予測された値も正であったものの割合である。
+\begin{equation}
+\text{Recall} = \frac{\mathrm{TP}}{\mathrm{TP + FN}}
+\end{equation}
+
+F値（F-measure）は，適合率と再現率の調和平均である。
+適合率と再現率はトレードオフの関係にあるため，
+予測モデルの性能を評価しやすくするために導入されることが多い。
+\begin{equation}
+\text{F} = \frac{\mathrm{2 \cdot \text{Precision} \cdot \text{Recall}}}{\mathrm{\text{Precision} + \text{Recall}}}
+\end{equation}
+
+
+\begin{table}
+	\centering
+	\caption{混同行列}
+	\input{tables/confusion_matrix}
+	\label{tab:confusion_matrix}
+\end{table}
+
+
+\subsection{回帰問題の評価指標}
+
+回帰問題におけるモデルの評価指標にも様々なものがあり，
+やはり問題によってどれを重視するかは異なってくる。
+以下に代表的な指標を列挙する。
+$t$が実測値を，$y$が推定値を，
+$N$がデータの個数を表す。
+
+平均二乗誤差（Mean Squared Error: MSE）
+\begin{equation}
+\mathrm{MSE} = \frac{1}{N} \sum_{i=1}^N (t_i - y_i)^2
+\end{equation}
+
+平均二乗平方根誤差（Root Mean Squared Error: RMSE）
+\begin{equation}
+\mathrm{RMSE} = \sqrt{\frac{1}{N} \sum_{i=1}^N (t_i - y_i)^2}
+\end{equation}
+
+平均絶対誤差（Mean Absolute Error: MAE）
+\begin{equation}
+\mathrm{MAE} = \frac{1}{N} \sum_{i=1}^N |t_i - y_i|
+\end{equation}
+
+決定係数は実測値と推定値の相関係数を表す。
+値が1に近いほど性能が良い。
+なお，式中の$\bar{y}$は推定値$y$の平均値である。
+\begin{equation}
+\mathrm{R}^2 = 1 - \frac{\sum_{i=1}^N (t_i - y_i)^2}{\sum_{i=1}^N (t_i - \bar{y})^2}
+\end{equation}
+
+Observed-Predicted Plotは，
+横軸に実測値，縦軸に推定値をプロットしたもので，
+原点を通り傾き1の直線付近に点が集まるほど性能が良いことを表す。
+
+
+
+\section{損失関数}
+\label{sec:loss_function}
+
+入力$\bm{x}$に対し望ましい出力$\bm{y}$が得られていれば，
+ネットワークの学習はうまくいったといえる。
+つまり，出力がどれくらい望ましいかを評価する尺度が重要になる。
+この尺度を損失関数と呼ぶ。
+損失関数は学習の進行度合いを表している。
+一般に，この損失関数は学習が進み出力が望ましいものになるほど
+小さくなるような関数となるため，
+Deep Learningにおける学習は損失関数を最小化する最適化問題となる。
+
+損失関数を$E$と表すこととする。
+損失関数$E$は，望ましい出力の値$t$とネットワークの出力$y$から計算される。
+損失関数は出力の望ましさの尺度であり，
+扱う問題によって出力の種類は異なるため，
+それぞれに対し適切な損失関数を設定する必要がある。
+例えば分類問題のときは，損失関数には基本的に交差エントロピー誤差が用いられる。
+回帰問題のときは2乗和誤差が用いられることが多い。
+以下に損失関数の代表例の定義式を列挙する。
+
+交差エントロピー誤差
+\begin{align}
+E & = - \sum_k \qty{ t_{nk} \ln y_{nk} + (1 - t_{nk}) \ln (1 - y_{nk}) } \\
+	& =  - \sum_k t_k \ln y_k  \qquad (\text{when classification problem})
+\end{align}
+
+ロジスティック損失（ロジスティック回帰）
+\begin{equation}
+E = \ln\qty(1 + \exp(-ty))
+\end{equation}
+
+指数損失
+\begin{equation}
+E = \exp(-ty)
+\end{equation}
+
+ヒンジ損失
+\begin{equation}
+E = \max(1 - ty, 0)
+\end{equation}
+
+2乗和誤差
+\begin{equation}
+E = \frac{1}{2} \sum_k (y_k - t_k)^2
+\end{equation}
+
+$\tau$-分位損失（分位点回帰）
+\begin{equation}
+E = (1 - \tau) \max(y-t, 0) + \tau \max(t-y, 0)
+\end{equation}
+
+Huber損失（外れ値に大きく影響されるとき）
+\begin{equation}
+E =
+	\begin{cases}
+		\qty(t - y)^2 & (y \in \qty[t-\delta, t+\delta]) \\
+		2\delta \qty(|t - f| - \frac{\delta}{2}) & (\mathrm{otherwise})
+	\end{cases}
+	\qquad \qty(\delta \in \bm{R}_{>0})
+\end{equation}
+
+$\varepsilon$-許容（感度）損失
+\begin{equation}
+E = \max(|t - y| - \varepsilon, 0) \qquad \qty(\varepsilon \in \bm{R}_{>0})
+\end{equation}
+
+
+
+\section{勾配降下法}
+\label{sec:gradient_descent}
+
+\ref{sec:loss_function}節から，
+ネットワークを学習させるためには損失関数$E$を最小化すればよいことがわかった。
+この節では，その最適化手法について考える。
+
+
+\subsection{勾配降下法}
+
+いま，ネットワークのパラメータ（主に重みとバイアス）をまとめて$\bm{\theta}$と表すこととする。
+学習の最終的な目標は，
+\begin{equation}
+\bm{\theta} = \mathrm{argmin}_{\bm{\theta}} E(\bm{\theta})
+\end{equation}
+となる$\bm{\theta}$を設定することである。
+ここで，$E$は全データに対して計算した損失関数である。
+しかし，$E$は凸関数とは限らないため，
+極小値に至ったとき，
+そこが大域的な最小値であるとは限らない。
+しかし，大域的な最小値でなくとも，
+ある程度小さい値になっていれば，
+ある程度の性能を持つネットワークが学習されていると考えられる。
+よって，$E$に極小値を与えるような$\bm{\theta}$を設定することを考える。
+
+このような最適化手法は1つではないが，
+パラメータの数が多くなる深層学習のモデルにおいては，
+勾配（1次微分）までしか用いずに計算できるという点で，
+勾配降下法（gradient descent method）が有利である。
+パラメータの数を$M$とすると，勾配は次のように表される。
+\begin{equation}
+\nabla_{\bm{\theta}} E \equiv \pdv{E}{\bm{\theta}} =
+	\qty[
+		\pdv{E}{\theta_1} \quad
+		\pdv{E}{\theta_2} \quad
+		\dots \quad
+		\pdv{E}{\theta_M}
+	]^\mathrm{T}
+\end{equation}
+勾配が負の方向がすなわち極小値の方向であるため，
+その方向にパラメータを更新していけばよいというのが勾配降下法である。
+つまり，次のようにパラメータを更新する。
+\begin{equation}
+\bm{\theta} \leftarrow \bm{\theta} - \eta \nabla_{\bm{\theta}} E
+\label{eq:update_param}
+\end{equation}
+ここで，$\eta (\in \bm{R}_{>0})$は学習率（learning rate）であり，
+更新の程度を表すハイパーパラメータである。
+
+損失関数のパラメータによる偏微分は，
+例えば数値微分によって求めることができる。
+つまり，あるパラメータ$\theta$に着目し，
+他のパラメータを固定して次のようにして計算できる。
+\begin{equation}
+\pdv{E}{\theta} = \frac{E(\theta + \varepsilon) - E(\theta - \varepsilon)}{2 \varepsilon}
+\end{equation}
+ここで$\varepsilon$は十分小さい値である。
+これを全パラメータに関して行うことで，
+$\nabla_{\bm{\theta}} E$を求めることができる。
+
+
+\subsection{学習率}
+
+
+学習率を十分小さくすれば確実に損失関数を減少させることができるため，
+十分な回数更新を繰り返せば確実に極小値に至らせることができる。
+しかし，これでは学習時間も増大してしまう。
+一方，学習率を大きくしすぎると$E$が増大して発散することも起こりうる。
+よって，学習率をちょうどよい値に設定することが，
+学習の効率的な進行に大きい影響を与えることになる。
+
+
+\subsection{確率的勾配降下法}
+
+勾配降下法では，全データ用いて計算した損失関数を用いてパラメータの更新を行っていた。
+このような学習法をバッチ学習という。
+一方，確率的勾配降下法（stochastic gradient descent: SGD）は，
+一つひとつのデータに対して同様の操作をしてパラメータの更新を行う手法である。
+バッチ学習をすると，局所的な極小値に捕らわれたときに抜け出すことができなくなる。
+しかし，一つひとつのデータに対して勾配を求めれば，
+それぞれの勾配は同じ方向を向いてはいないので，
+局所的な極小値には捕らわれにくくなる。
+
+
+\subsection{ミニバッチ学習}
+
+バッチ学習よりもSGDの方が深層学習における学習法としては有利な点が多い。
+しかし，データ一つひとつを用いる学習法では，並列計算をすることができず効率が悪い。
+そこで，両者の間を取って，
+全データのうち一部をひとまとめにし，
+それを1つの単位として学習させることを考える。
+このひとまとめのデータをミニバッチといい，
+この学習方法をミニバッチ学習という。
+ここで，損失関数の値はミニバッチに含まれるデータ数で平均する。
+
+
+
+\section{誤差逆伝搬法}
+
+\ref{sec:gradient_descent}節より，
+勾配降下法を用いれば学習させられることが分かった。
+しかし，パラメータの各成分についての偏微分を数値微分で求めるのは計算コストが非常に高い。
+複雑な問題を解かせるときにはパラメータの数は爆発的に増えるため，
+その偏微分の数値微分の計算にかかる時間も大きく増加する。
+これを何度も繰り返して学習させなければならないため，
+現実的な計算時間ではなくなってしまう。
+誤差逆伝搬法を用いることで数値微分よりも計算コストを抑えて偏微分を計算することができる。
+
+ある層$l$を考える。
+隠れ層$\bm{h}$の第0要素に1を追加し，
+これらの層間のパラメータ$\bm{\theta}^{(l)}$の第0行に$\bm{b}$を追加して考える。
+\begin{align}
+& \bm{u}^{(l)} = {\bm{\theta}^{(l)}}^{\mathrm{T}} \bm{h}^{(l-1)} \\
+& \bm{h}^{(l)} = f\qty(\bm{u}^{(l)})
+\end{align}
+となる。
+これを要素に分解して考えると，
+\begin{align}
+& u_j^{(l)} = \sum_i \theta_{ij}^{(l)} h_i^{(l-1)} \\
+& h_j^{(l)} = f\qty(u_j^{(l)})
+\end{align}
+である。
+損失関数$E$の$\theta_{ij}$による偏微分は，
+\begin{equation}
+\pdv{E}{\theta_{ij}^{(l)}} = \pdv{E}{u_j^{(l)}} \pdv{u_j^{(l)}}{\theta_{ij}^{(l)}}
+\end{equation}
+と書ける。ここで，
+\begin{equation}
+\delta_j^{(l)} \equiv \pdv{E}{u_j^{(l)}}
+\label{eq:def:delta}
+\end{equation}
+とおくと，
+\begin{equation}
+\pdv{u_j^{(l)}}{\theta_{ij}^{(l)}} = h_i^{(l-1)}
+\end{equation}
+となることから，
+\begin{equation}
+\pdv{E}{\theta_{ij}^{(l)}} = \delta_j^{(l)} h_i^{(l-1)}
+\label{eq:pdv_param}
+\end{equation}
+と書ける。
+よって，損失関数の$\theta_{ij}^{(l)}$による偏微分を$\delta$と隠れ状態$h$で表せた。
+
+以下では$\delta$を求めることを考える。
+連鎖率から，
+\begin{equation}
+\pdv{E}{u_j^{(l)}} = \sum_k \pdv{E}{u_k^{(l+1)}} \pdv{u_k^{(l+1)}}{u_{j}^{(l)}}
+\end{equation}
+ここで，
+\begin{equation}
+\pdv{u_k^{(l+1)}}{u_{j}^{(l)}}
+	= \pdv{u_k^{(l+1)}}{h_{j}^{(l)}} \pdv{h_j^{(l)}}{u_{j}^{(l)}}
+	= \theta_{jk}^{(l+1)} f^\prime \qty(u_{j}^{(l)})
+\end{equation}
+となることから，結局，
+\begin{equation}
+\delta_j^{(l)} = \sum_k \delta_k^{(l+1)} \theta_{jk}^{(l+1)} f^\prime \qty(u_{j}^{(l)})
+\label{eq:backprop_delta}
+\end{equation}
+という式を得る。
+この式から，ある層における$\bm{\delta}$が求まれば，
+それより1つ浅い層の$\bm{\delta}$も求まることがわかる。
+つまり，出力層における$\bm{\delta} = \bm{\delta}^{(L)}$が求まれば，
+入力層側の$\bm{\delta}$まで全て求まることになる。
+
+出力層の$\delta^{(L)}$を求める。
+望ましい出力を$\bm{t}$とする。
+当然，損失関数$E$と出力層の活性化関数$f^{(L)}$によって計算過程は異なる。
+例として，
+損失関数に2乗和誤差を，
+出力層の活性化関数に恒等関数を用いた場合（回帰問題）を考える。
+\begin{align}
+& \bm{y} = \bm{h}^{(L)} = \bm{u}^{(L)} \\
+& E = \frac{1}{2} \| \bm{y} - \bm{t} \|^2 = \frac{1}{2} \sum_i (y_i - t_i)^2
+\end{align}
+式(\ref{eq:def:delta})より，
+\begin{equation}
+\delta_i^{(L)} = \pdv{E}{u_i^{(L)}} = \pdv{E}{y_i} = y_i - t_i
+\end{equation}
+よって，
+\begin{equation}
+\bm{\delta}^{(L)} = \bm{y - t}
+\label{eq:delta}
+\end{equation}
+と求まる。
+なお，損失関数に交差エントロピー誤差を，
+活性化関数にlogistic関数を用いたとき（2値分類問題），
+及び損失関数に交差エントロピー誤差を，
+活性化関数にsoftmax関数を用いたとき（多クラス分類）の出力層における$\bm{\delta}$も，
+式(\ref{eq:delta})と同じ形で表すことができる。
+
+以上まとまると，1つのデータの集まりに対する学習の手順は次のようになる。
+
+\begin{enumerate}
+\item $\bm{x}$を入力して各層の$\bm{u},\ \bm{h}$を計算する
+\item 出力層の$\bm{\delta^{(L)}}$を求める（式(\ref{eq:delta})のようになることが多い）
+\item 式(\ref{eq:backprop_delta})を用いて各層の$\bm{\delta}$を計算する
+\item 式(\ref{eq:pdv_param})を用いて各パラメータによる損失関数の偏微分を計算する
+\item 式(\ref{eq:update_param})を用いてパラメータを更新する
+\end{enumerate}
+
+%<-----------------------------------------------------------  勾配消失問題
+
+
+\section{最適化手法}
+
+パラメータの更新は，式(\ref{eq:update_param})以外の式によっても行うことができる。
+安定して極小値に収束させるために，
+様々な手法が提案されている。
+式(\ref{eq:update_param})を含め，以下にそれらを列挙する。
+ここで，$\odot$は行列の要素ごとの積を表す。
+
+SGD
+\begin{equation}
+\bm{\theta} \leftarrow \bm{\theta} - \eta \pdv{E}{\bm{\theta}}
+\end{equation}
+
+Momentum（$\alpha$はハイパーパラメータ）
+\begin{align}
+& \bm{v} \leftarrow \alpha \bm{v} - \eta \pdv{E}{\bm{\theta}} \\
+& \bm{\theta} \leftarrow \bm{\theta} + \bm{v}
+\end{align}
+
+AdaGrad
+\begin{align}
+& \bm{h} \leftarrow \bm{h} + \pdv{E}{\bm{\theta}} \odot \pdv{E}{\bm{\theta}} \\
+& \bm{\theta} \leftarrow \bm{\theta} - \eta \frac{1}{\sqrt{\bm{h}}} \pdv{E}{\bm{\theta}}
+\end{align}
+
+RMSprop（$\alpha,\ \varepsilon$はハイパーパラメータ）
+\begin{align}
+& \bm{h} \leftarrow \alpha \bm{h} + (1 - \alpha) \pdv{E}{\bm{\theta}} \odot \pdv{E}{\bm{\theta}} \\
+& \bm{\theta} \leftarrow \bm{\theta} - \eta \frac{1}{\sqrt{\bm{h}} + \varepsilon} \pdv{E}{\bm{\theta}}
+\end{align}
+
+Adam（$\beta_1,\ \beta_2,\ \varepsilon$はハイパーパラメータ，$t$はイタレーション回数）
+\begin{align}
+& \bm{m} \leftarrow \beta_1 \bm{m} + (1 - \beta_1) \pdv{E}{\bm{\theta}} \\
+& \bm{v} \leftarrow \beta_2 \bm{v} + (1 - \beta_2) \pdv{E}{\bm{\theta}} \odot \pdv{E}{\bm{\theta}} \\
+& \hat{\bm{m}} = \frac{\bm{m}}{1 - \beta_1^t} \\
+& \hat{\bm{v}} = \frac{\bm{v}}{1 - \beta_2^t} \\
+& \bm{\theta} \leftarrow \bm{\theta} - \eta \frac{\hat{\bm{m}}}{\sqrt{\hat{\bm{v}}} + \varepsilon}
+\end{align}
+
+
+
+\section{重みの初期化}
+
+学習の開始時には重みを適当な値で初期化する必要がある。
+1層分の重みを全て同じ値で初期化すると，
+その出力は全て同じ値になる。
+このとき，誤差を逆伝搬させると，
+その層の重みは全て同じ値だけ更新される。
+従って，
+学習を進めてもその層の重みは全て同じ値のままとなり，
+その結果出力の値も全て同じ値のままになる。
+よって，重みを均一な値で初期化すると，
+学習ができないという状況になってしまう。
+以上のことから，重みは異なる値を持つように，
+例えば一様分布や正規分布等で初期化しなければならない。
+なお，バイアスにはこういった問題はないため，
+基本的には0で初期化する。
+
+例えば，正規分布を用いて初期化するときを考えると，
+その分散をうまく設定する必要があることがわかる。
+分散が小さすぎるときは，重みの値は全てほぼ0となり，
+上記のように学習が進まないという状況に陥ってしまう。
+また，logistic関数のような活性化関数では，
+出力の値が大きいと勾配が小さくなるため，
+分散が大きく値の大きい初期値である場合も学習がうまく進まない。
+よって，重みの初期化を適切に行えるような分散の値を選ぶ必要がある。
+
+以下に重みの初期化に用いられる代表的な分布を列挙する。
+$i$層目の重みを$W_i$，その入力の数を$n_i$とする。
+
+Uniform Initialization
+\begin{equation}
+W_i \sim U\qty[-1,\ 1]
+\end{equation}
+
+Xavier (Glorot) Initialization（ReLU以外の活性化関数を用いる場合）
+\begin{equation}
+%W_i \sim U\qty[-\sqrt{\frac{6}{n_i + n_{i+1}}},\ \sqrt{\frac{6}{n_i + n_{i+1}}}]  <<--- Xavierの初期化??
+W_i \sim N\qty[0,\ \frac{1}{\sqrt{n_i}}]
+\end{equation}
+
+He Initialization（ReLUを活性化関数として用いる場合）
+\begin{equation}
+W_i \sim N\qty[0,\ \sqrt{\frac{2}{n_i}}]
+\end{equation}
+
+Gauss Initialization
+\begin{equation}
+W_i \sim N\qty[0,\ 1]
+\end{equation}
+
+
+
+\section{正則化}
+
+訓練に用いたデータに適応しすぎてしまうことを過学習（over fitting）という。
+機械学習ではパラメータの数が膨大になるため，
+訓練データを（ほぼ）完全に覚えてしまうということが起こる可能性がある。
+それが過学習である。
+過学習をすると，新しいデータに対しての予測性能，
+つまり汎化性能が低くなってしまう。
+
+過学習をしているかどうかを確認するためには，
+パラメータの更新に用いない検証用のデータを用意し，
+検証データにおける性能を測りながら訓練を行う必要がある。
+性能の測り方としては，損失関数や精度をプロットするといった方法が挙げられる。
+訓練データと検証データの間の乖離が大きくなった場合，
+そのモデルは過学習しているといえる。
+また，最終的な成果物としてのモデルには，
+検証データにおける性能が最も高いものを採用するような形がしばしば取られる。
+しかし，これでは検証データに過適合する可能性があるため，
+また別の同規模のデータを用意して過適合していないことを補償することもある。
+このデータをテストデータと呼ぶ。
+つまり，データを訓練・検証・テストの3つに分割して学習を行う。
+これらの比は8:1:1や6:2:2とすることが多いが，
+検証・テストデータに関しては1万データあれば十分という考え方もある。
+
+過学習の原因はデータの量に対してパラメータの数が多すぎることにある。
+従って，過学習を抑制するには，
+データの量を増やす，もしくはパラメータの数を減らすといったことがまず考えられる。
+しかし，モデルの性能を上げるためにはパラメータを増やす必要がある。
+よって，
+訓練データに対する精度が思うように出ていないにも関わらず過学習が発生した場合，
+パラメータの数を減らすことはできない。
+このとき，検証データにおける性能を上げるためには，
+まずデータの量を増やすことが考えられる。
+また，
+検証データに対する誤差が増加した場合，
+それ以上学習を進めても過学習をする一方なので，
+その時点で学習を止めるという方法を取ることもできる。
+これを早期終了（early stopping）という。
+
+しかし，その他にも，重みに制限をかけるなどして過学習を防ぐことができる。
+これを正則化という。
+正則化によって，
+基本的に訓練データに対する性能は下がるが，
+汎化性能は上がる可能性がある。
+この節では，その正則化手法をいくつか紹介する。
+
+
+\begin{comment}
+\subsection{L1正則化}%<---------------------------------------- DLで使わんやろ
+
+LASSO (Least Absolute Shrinkage and Selection Operator)とも呼ばれる。
+損失に重みの絶対値の項を加える。
+\begin{equation}
+J = L(t,\ y) + \lambda |\bm{W}|
+\end{equation}
+ここで，$\lambda$はハイパーパラメータである。
+説明変数のうち一部を0にすることによってスパースな解を得て，
+変数選択を行うことができるといった特徴があるが，
+学習が不安定になる。
+% L$\infty$正則化
+\end{comment}
+
+
+\subsection{L2正則化}
+
+重み減衰（weight decay）とも呼ばれる。
+また，L2正則化回帰のことをRidge回帰と呼ぶこともある。
+この正則化手法では，
+損失に重みの2乗の項を加える。
+つまり，
+\begin{equation}
+J = L(t,\ y) + \lambda |\bm{W}|^2
+\end{equation}
+ここで，$\lambda$はハイパーパラメータである。
+この項を損失に加えることにより，
+値の大きいパラメータを小さくするように学習が行われ，
+結果として過学習が防がれる場合がある。
+
+
+\subsection{Dropout}
+
+Dropoutは，訓練時にニューロンのうち一部を確率的に不活性化させて学習させることにより，
+汎化性能を上げる手法である。
+つまり，Dropoutを適用する層において，
+重みのうち一部を確率的に選び，
+選ばれたものの重みを0として順伝搬を行い，
+また逆伝搬時にも重みの更新をしないようにする。
+ここで，Dropoutする確率はハイパーパラメータとなる。
+推論時には，
+全てのノードを用いて計算を行った後，
+訓練時にDropoutしていた割合を出力にかけることで，
+用いているノードの数が訓練時より増加し大きくなった出力の値を修正している。
+このように学習することによって，
+複数のネットワークを独立に学習し，
+推論時にその出力を平均する，
+アンサンブル学習の近似になるといわれている。
+
+%入力層に近いところは0.2，中間層には0.5くらいの値にするとよいといわれている。
+
+
+\subsection{Batch Normalization}
+
+Batch Normalizationは単なる正則化手法というわけではないが，
+ここで解説することとする。
+第$i$層への入力を$x_i$，ミニバッチの大きさを$m$とする。
+この手法では，名前の通りミニバッチごとに正規化を行う。
+\begin{align}
+& \mu_\mathrm{B} = \frac{1}{m} \sum_{i=1}^{m} x_i \\
+& {\sigma_\mathrm{B}}^2 = \frac{1}{m} \sum_{i=1}^m \qty(x_i - \mu_\mathrm{B})^2 \\
+& \hat{x}_i = \frac{x_i - \mu_\mathrm{B}}{\sqrt{{\sigma_\mathrm{B}}^2 + \varepsilon}}
+\end{align}
+ここで，$\varepsilon$は0除算を回避するための定数であり，
+非常に小さい値である。
+このように正規化された入力$\hat{x}_i$に対し，
+次のような変換を行う。
+\begin{equation}
+y_i = \gamma \hat{x}_i + \beta
+\end{equation}
+ここで，$\gamma$と$\beta$はパラメータであり，
+それぞれ1と0を初期値として学習される。
+なお，Batch Normalizationを活性化関数の前と後ろのどちらかに置くかについては議論されている。
+
+以上の過程がBatch Normalization層における操作である。
+なお，推論時にはデータはミニバッチとしてではなく1つだけで入ってくることが想定されるため，
+$\mu_\mathrm{B}$と$\sigma_\mathrm{B}$は学習時の移動平均を用いる。
+Batch Normalizationには正則化の他に，
+損失が発散しにくくなるため学習率を大きくして学習にかかる時間を短くできる，
+初期値への依存性が下がるといった効果がある。
+
+
+
+\end{document}

@@ -1,0 +1,13 @@
+\documentclass[class=jsarticle, crop=false, dvipdfmx, fleqn]{standalone}
+\input{../preamble/preamble}
+\begin{document}
+
+\begin{tabular}{|c|c|c|c|} \hline
+\multicolumn{1}{|c}{} & & \multicolumn{2}{c|}{Predicted Class} \\ \cline{3-4}
+\multicolumn{1}{|c}{} & & Positive & Negative \\ \hline
+%\multirow{2}{*}{Actual Class}
+Actual & Positive & TP & FN \\ \cline{2-4}
+Class & Negative & FP & TN \\ \hline
+\end{tabular}
+
+\end{document}

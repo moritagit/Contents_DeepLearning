@@ -1,0 +1,47 @@
+\documentclass[class=jsarticle, crop=false, dvipdfmx, fleqn]{standalone}
+\input{../preamble/preamble}
+\begin{document}
+\begin{tikzpicture}[x=1.5cm, y=1.5cm, >=stealth]
+
+% input
+\foreach \m/\l [count=\y] in {1,2,3,missing,4}
+  \node [every neuron/.try, neuron \m/.try] (input-\m) at (0,2.5-\y) {};
+\foreach \m/\l [count=\y] in {1,2,3}
+	\node [every neuron/.try, neuron \m/.try] (input-\m) at (0,2.5-\y) {$x_\l$};
+\node [every neuron/.try, neuron 4/.try] (input-4) at (0,2.5-5) {$x_l$};
+
+
+% hidden
+\foreach \m [count=\y] in {1,missing,2}
+  \node [every neuron/.try, neuron \m/.try ] (hidden-\m) at (2,2-\y*1.25) {};
+\node [every neuron/.try, neuron 1/.try] at (hidden-1) {$h_1$};
+\node [every neuron/.try, neuron 2/.try] at (hidden-2) {$h_m$};
+
+
+% output
+\foreach \m [count=\y] in {1,missing,2}
+	\node [every neuron/.try, neuron \m/.try ] (output-\m) at (4,1.5-\y) {};
+\node [every neuron/.try, neuron 1/.try ] (output-1) at (4,1.5-1) {$y_1$};
+\node [every neuron/.try, neuron 2/.try ] (output-3) at (4,1.5-3) {$y_n$};
+
+
+% edge
+\foreach \i in {1,...,4}
+  \foreach \j in {1,...,2}
+    \draw [->] (input-\i) -- (hidden-\j);
+\draw [->] (input-1) to node[above]{$\bm{W^{(1)}}$} (hidden-1);
+
+\foreach \i in {1,...,2}
+  \foreach \j in {1,...,2}
+    \draw [->] (hidden-\i) -- (output-\j);
+\draw [->] (hidden-1) to node[above]{$\bm{W^{(2)}}$} (output-1);
+
+
+% label
+\foreach \l [count=\x from 0] in {Input, Hidden, Ouput}
+  \node [align=center, above] at (\x*2,2) {\l \\ layer};
+
+
+
+\end{tikzpicture}
+\end{document}

@@ -1,0 +1,32 @@
+\documentclass[class=jsarticle, crop=false, dvipdfmx, fleqn]{standalone}
+\input{../preamble/preamble}
+\begin{document}
+\begin{tikzpicture}
+
+
+\node (input1) [image] at (0, 3) {\textsf{\textbf{\large Input Image 1}}};
+\node (encoder1) [encoder] at (3, 3) {\textsf{\textbf{\large Encoder}}};
+\node (vector1) [vector] at (5.5, 3) {\textsf{\textbf{\large Latent Variable 1}}};
+
+\node (input2) [image] at (0, -3) {\textsf{\textbf{\large Input Image 2}}};
+\node (encoder2) [encoder] at (3, -3) {\textsf{\textbf{\large Encoder}}};
+\node (vector2) [vector] at (5.5, -3) {\textsf{\textbf{\large Latent Variable 2}}};
+
+\node [fill=black, circle, inner sep=0pt, minimum size=1.5mm] (concat) at (7, 0) {};
+\node (vector) [vector, minimum height=6cm] at (9, 0) {\large \textsf{\textbf{Vector}}};
+\node (fc) [fc] at (12.5, 0) {\large \textsf{\textbf{FC}}};
+\node (output) [scalar] at (15.5, 0) {\large \textsf{\textbf{Flag}}};
+
+
+\draw [arrow] (input1) -- (encoder1);
+\draw [arrow] (encoder1) -- (vector1);
+\draw [arrow] (vector1) -| (concat) -- (vector);
+\draw [arrow] (input2) -- (encoder2);
+\draw [arrow] (encoder2) -- (vector2);
+\draw [arrow] (vector2) -| (concat) -- (vector);
+\draw [arrow] (vector) -- (fc);
+\draw [arrow] (fc) -- (output);
+
+
+\end{tikzpicture}
+\end{document}

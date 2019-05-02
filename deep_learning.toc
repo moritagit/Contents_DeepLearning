@@ -1,0 +1,21 @@
+\contentsline {section}{\numberline {1}はじめに}{2}{section.1}
+\contentsline {section}{\numberline {2}Perceptron}{2}{section.2}
+\contentsline {section}{\numberline {3}Neural Network}{3}{section.3}
+\contentsline {section}{\numberline {4}活性化関数}{4}{section.4}
+\contentsline {section}{\numberline {5}学習とは}{6}{section.5}
+\contentsline {section}{\numberline {6}分類問題・回帰問題}{6}{section.6}
+\contentsline {subsection}{\numberline {6.1}分類問題の評価指標}{6}{subsection.6.1}
+\contentsline {subsection}{\numberline {6.2}回帰問題の評価指標}{7}{subsection.6.2}
+\contentsline {section}{\numberline {7}損失関数}{7}{section.7}
+\contentsline {section}{\numberline {8}勾配降下法}{8}{section.8}
+\contentsline {subsection}{\numberline {8.1}勾配降下法}{9}{subsection.8.1}
+\contentsline {subsection}{\numberline {8.2}学習率}{9}{subsection.8.2}
+\contentsline {subsection}{\numberline {8.3}確率的勾配降下法}{9}{subsection.8.3}
+\contentsline {subsection}{\numberline {8.4}ミニバッチ学習}{10}{subsection.8.4}
+\contentsline {section}{\numberline {9}誤差逆伝搬法}{10}{section.9}
+\contentsline {section}{\numberline {10}最適化手法}{12}{section.10}
+\contentsline {section}{\numberline {11}重みの初期化}{12}{section.11}
+\contentsline {section}{\numberline {12}正則化}{13}{section.12}
+\contentsline {subsection}{\numberline {12.1}L2正則化}{14}{subsection.12.1}
+\contentsline {subsection}{\numberline {12.2}Dropout}{14}{subsection.12.2}
+\contentsline {subsection}{\numberline {12.3}Batch Normalization}{14}{subsection.12.3}

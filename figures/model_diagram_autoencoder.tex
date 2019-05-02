@@ -1,0 +1,21 @@
+\documentclass[class=jsarticle, crop=false, dvipdfmx, fleqn]{standalone}
+\input{../preamble/preamble}
+\begin{document}
+\begin{tikzpicture}
+
+
+\node (input) [image] at (0, 0) {\textsf{\textbf{\large Input Image}}};
+\node (encoder) [encoder] at (3, 0) {\textsf{\textbf{\large Encoder}}};
+\node (vector) [vector] at (5.5, 0) {\textsf{\textbf{\large Latent Variable}}};
+\node (decoder) [decoder] at (8, 0) {\textsf{\textbf{\large Decoder}}};
+\node (output) [image] at (11, 0) {\textsf{\textbf{\large Output Image}}};
+
+
+\draw [arrow] (input) -- (encoder);
+\draw [arrow] (encoder) -- (vector);
+\draw [arrow] (vector) -- (decoder);
+\draw [arrow] (decoder) -- (output);
+
+
+\end{tikzpicture}
+\end{document}

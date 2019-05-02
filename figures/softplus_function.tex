@@ -1,0 +1,34 @@
+\documentclass[class=jsarticle, crop=false, dvipdfmx, fleqn]{standalone}
+\input{../preamble/preamble}
+\begin{document}
+\begin{tikzpicture}[xscale=0.8, yscale=0.66]
+
+% coordinates
+\coordinate (O) at (0, 0);
+\fill (O) node[below right]{O} circle [radius=0.8mm];
+
+
+% axis
+\begin{scope}
+\draw [-latex] (O)--+(3, 0)node[right]{$x$};
+\draw (O)--+(-3, 0);
+\draw [-latex] (O)--+(0, 3)node[right]{$y$};
+\draw (O)--+(0, -2);
+\end{scope}
+
+
+% graph
+\begin{scope}[ultra thick]
+\draw [domain=-2.5: 2.5] plot (\x, {ln(1 + e^\x)});
+\end{scope}
+
+
+% grid
+\begin{scope}[densely dashed]
+\draw (0, 0)--(2.5, 2.5);
+\end{scope}
+
+
+
+\end{tikzpicture}
+\end{document}

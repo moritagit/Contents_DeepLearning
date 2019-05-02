@@ -1,0 +1,28 @@
+\documentclass[class=jsarticle, crop=false, dvipdfmx, fleqn]{standalone}
+\input{../preamble/preamble}
+\begin{document}
+\begin{tikzpicture}
+
+% coordinates
+\coordinate (O) at (0, 0);
+\fill (O) node[below left]{O} circle [radius=0.8mm];
+
+
+% axis
+\begin{scope}
+\draw [-latex] (O)--+(2, 0)node[right]{$x$};
+\draw (O)--+(-2, 0);
+\draw [-latex] (O)--+(0, 2)node[right]{$y$};
+\draw (O)--+(0, -1.5);
+\end{scope}
+
+
+% graph
+\begin{scope}[ultra thick]
+\draw (O)--+(-1.5, 0);
+\draw (O)--++(0, 1)node[left]{1}--++(1.5, 0);
+\end{scope}
+
+
+\end{tikzpicture}
+\end{document}
