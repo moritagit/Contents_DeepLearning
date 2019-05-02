@@ -2,10 +2,9 @@
 *.dvi
 *.log
 *.out
-*.gz
-
+*.synctex.gz
+*.toc
 # *.pdf
-# *.toc
 
 figures/fig_template.tex
 tables/table_template.tex
