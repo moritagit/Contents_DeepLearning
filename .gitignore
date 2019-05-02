@@ -1,0 +1,11 @@
+*.aux
+*.dvi
+*.log
+*.out
+*.gz
+
+# *.pdf
+# *.toc
+
+figures/fig_template.tex
+tables/table_template.tex
