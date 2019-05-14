@@ -1,6 +1,6 @@
 \documentclass[class=jsarticle, crop=false, dvipdfmx, fleqn]{standalone}
 \input{preamble}
-\title{Deep Learning入門}
+\title{深層学習入門}
 \begin{document}
 
 \maketitle
@@ -21,7 +21,7 @@
 パーセプトロンとは，
 入力として複数の数値を受け取り，
 1つの数値を出力するものである。
-入力された数値は，
+入力された数値には，
 それぞれ対応する重みがかけられ，
 その総和が取られる。
 それにバイアスと呼ばれる数値を足し，
@@ -180,7 +180,7 @@ f(x) = \log (1 + e^x)
 
 ReLU (Rectified Linear Unit)
 \begin{equation}
-f(x) = \max(0, x) = 
+f(x) = \max(0,\ x) = 
 	\begin{cases}
 		x & (x > 0) \\
 		0 & (x \leq 0)
@@ -306,6 +306,9 @@ f(x_i) = \frac{e^{x_i}}{\sum_{j=1}^{n} e^{x_j}}
 
 回帰問題は，入力データから数値を予測するようなタスクを指す。
 株価や気温の予測等が当てはまる。
+また例えば物体検知では，
+画像中のどの位置に物体（例えば車や歩行者）があるかをピクセルレベルで予測しており，
+ここでも回帰問題が扱われている。
 出力層の活性化関数としては，
 よく恒等関数が用いられる。
 
@@ -331,7 +334,7 @@ f(x_i) = \frac{e^{x_i}}{\sum_{j=1}^{n} e^{x_j}}
 表\ref{tab:confusion_matrix}のように分類する。
 予測結果と真の値が一致したものにTrue，そうでないものにFalseと，
 予測値が正だったものにPositive，そうでないものにNegativeというラベルをつけている。
-この表を混同行列という。
+この表を混同行列（confusion matrix）という。
 以下では，この混同行列を用いていくつかの評価指標を導入する。
 
 正解率（accuracy）は，分類結果のうち，予測された値と真の値が一致したものの割合である。
@@ -409,7 +412,7 @@ Observed-Predicted Plotは，
 入力$\bm{x}$に対し望ましい出力$\bm{y}$が得られていれば，
 ネットワークの学習はうまくいったといえる。
 つまり，出力がどれくらい望ましいかを評価する尺度が重要になる。
-この尺度を損失関数と呼ぶ。
+この尺度を損失関数（loss function）と呼ぶ。
 損失関数は学習の進行度合いを表している。
 一般に，この損失関数は学習が進み出力が望ましいものになるほど
 小さくなるような関数となるため，
@@ -442,7 +445,7 @@ E = \exp(-ty)
 
 ヒンジ損失
 \begin{equation}
-E = \max(1 - ty, 0)
+E = \max(1 - ty,\ 0)
 \end{equation}
 
 2乗和誤差
@@ -452,14 +455,14 @@ E = \frac{1}{2} \sum_k (y_k - t_k)^2
 
 $\tau$-分位損失（分位点回帰）
 \begin{equation}
-E = (1 - \tau) \max(y-t, 0) + \tau \max(t-y, 0)
+E = (1 - \tau) \max(y-t,\ 0) + \tau \max(t-y,\ 0)
 \end{equation}
 
 Huber損失（外れ値に大きく影響されるとき）
 \begin{equation}
 E =
 	\begin{cases}
-		\qty(t - y)^2 & (y \in \qty[t-\delta, t+\delta]) \\
+		\qty(t - y)^2 & (y \in \qty[t-\delta,\ t+\delta]) \\
 		2\delta \qty(|t - f| - \frac{\delta}{2}) & (\mathrm{otherwise})
 	\end{cases}
 	\qquad \qty(\delta \in \bm{R}_{>0})
@@ -535,10 +538,10 @@ $\nabla_{\bm{\theta}} E$を求めることができる。
 
 \subsection{学習率}
 
-
 学習率を十分小さくすれば確実に損失関数を減少させることができるため，
 十分な回数更新を繰り返せば確実に極小値に至らせることができる。
-しかし，これでは学習時間も増大してしまう。
+しかし，これでは学習時間が増大してしまい，
+また局所的な極小値に捕われやすくもなってしまう。
 一方，学習率を大きくしすぎると$E$が増大して発散することも起こりうる。
 よって，学習率をちょうどよい値に設定することが，
 学習の効率的な進行に大きい影響を与えることになる。
@@ -553,7 +556,7 @@ $\nabla_{\bm{\theta}} E$を求めることができる。
 バッチ学習をすると，局所的な極小値に捕らわれたときに抜け出すことができなくなる。
 しかし，一つひとつのデータに対して勾配を求めれば，
 それぞれの勾配は同じ方向を向いてはいないので，
-局所的な極小値には捕らわれにくくなる。
+局所的な極小値には捕われにくくなる。
 
 
 \subsection{ミニバッチ学習}
@@ -566,7 +569,7 @@ $\nabla_{\bm{\theta}} E$を求めることができる。
 このひとまとめのデータをミニバッチといい，
 この学習方法をミニバッチ学習という。
 ここで，損失関数の値はミニバッチに含まれるデータ数で平均する。
-
+この，ミニバッチに含まれるデータ数を，バッチサイズ（batch size）という。
 
 
 \section{誤差逆伝搬法}
@@ -600,14 +603,14 @@ $\nabla_{\bm{\theta}} E$を求めることができる。
 \end{equation}
 と書ける。ここで，
 \begin{equation}
+\pdv{u_j^{(l)}}{\theta_{ij}^{(l)}} = h_i^{(l-1)}
+\end{equation}
+であることから，
+\begin{equation}
 \delta_j^{(l)} \equiv \pdv{E}{u_j^{(l)}}
 \label{eq:def:delta}
 \end{equation}
 とおくと，
-\begin{equation}
-\pdv{u_j^{(l)}}{\theta_{ij}^{(l)}} = h_i^{(l-1)}
-\end{equation}
-となることから，
 \begin{equation}
 \pdv{E}{\theta_{ij}^{(l)}} = \delta_j^{(l)} h_i^{(l-1)}
 \label{eq:pdv_param}
