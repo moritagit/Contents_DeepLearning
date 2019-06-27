@@ -614,10 +614,11 @@ $l-1$層と$l$層の層間のパラメータ$\bm{\theta}^{(l)}$は，
 \label{eq:def:delta}
 \end{equation}
 とおくと，
-\begin{equation}
-\pdv{E}{\theta_{ij}^{(l)}} = \delta_j^{(l)} h_i^{(l-1)}
+\begin{align}
+& \pdv{E}{\theta_{ij}^{(l)}} = \delta_j^{(l)} h_i^{(l-1)} \\
+& \pdv{E}{\bm{\theta}^{(l)}} = \bm{h}^{(l-1)} {\bm{\delta}^{(l)}}^\mathrm{T}
 \label{eq:pdv_param}
-\end{equation}
+\end{align}
 と書ける。
 よって，損失関数の$\theta_{ij}^{(l)}$による偏微分を$\delta$と隠れ状態$h$で表せた。
 
@@ -633,10 +634,11 @@ $l-1$層と$l$層の層間のパラメータ$\bm{\theta}^{(l)}$は，
 	= \theta_{jk}^{(l+1)} {f^{(l)}}^\prime \qty(u_{j}^{(l)})
 \end{equation}
 となることから，結局，
-\begin{equation}
-\delta_j^{(l)} = \sum_k \delta_k^{(l+1)} \theta_{jk}^{(l+1)} {f^{(l)}}^\prime \qty(u_{j}^{(l)})
+\begin{align}
+& \delta_j^{(l)} = \sum_k \delta_k^{(l+1)} \theta_{jk}^{(l+1)} {f^{(l)}}^\prime \qty(u_{j}^{(l)}) \\
+& \bm{\delta} = \bm{\theta}^{(l+1)} \bm{\delta}^{(l+1)} \odot {f^{(l)}}^\prime \qty(\bm{u}^{(l)})
 \label{eq:backprop_delta}
-\end{equation}
+\end{align}
 という式を得る。
 この式から，ある層における$\bm{\delta}$が求まれば，
 それより1つ浅い層の$\bm{\delta}$も求まることがわかる。
